@@ -1,9 +1,7 @@
-# Export format
+# 导出格式
 
-An exporter is a program which emits Lean declarations using the kernel language, for consumption by external type checkers. Producing an export file is a complete exit from the Lean ecosystem; the data in the file can be checked with entirely external software, and the exporter itself is not a trusted component. Rather than inspecting the export file itself to see whether the declarations were exported as the developer intended, the exported declarations are checked by the external checker, and are displayed back to the user by a pretty printer, which produces output far more readable than the export file. Readers can (and are encouraged to) write their own external checkers for Lean export files.
+导出器是一个程序，它使用内核语言发出 Lean 声明，以供外部类型检查器使用。产生导出文件，意味着完全离开 Lean 生态：文件中的数据可以由完全外部的软件检查，而导出器本身并不是可信组件。与其直接检查导出文件本身，以判断声明是否按照开发者意图被导出，不如由外部检查器检查这些导出的声明，再由漂亮打印器把它们显示给用户；漂亮打印器产生的输出远比导出文件本身更可读。读者可以（也被鼓励）为 Lean 导出文件编写自己的外部检查器。
 
-The official exporter is [lean4export](https://github.com/leanprover/lean4export).
+官方导出器是 [lean4export](https://github.com/leanprover/lean4export)。
 
-Current versions of lean4export use an ndjson format now specified [here](https://github.com/leanprover/lean4export/blob/master/format_ndjson.md)
-
-
+当前版本的 lean4export 使用 ndjson 格式，其规范见[此处](https://github.com/leanprover/lean4export/blob/master/format_ndjson.md)。

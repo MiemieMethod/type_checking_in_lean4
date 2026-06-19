@@ -1,20 +1,20 @@
-# Instantiation and abstraction
+# 实例化与抽象
 
-Instantiation refers to substitution of bound variables for the appropriate arguments. Abstraction refers to replacement of free variables with the appropriate bound variable when replacing binders. Lean's kernel uses deBruijn indices for bound variables and unique identifiers for free variables.
+实例化指的是用适当的实参替换有界变量。抽象指的是在重建绑定子时，用适当的有界变量替换自由变量。Lean 的内核对有界变量使用 de Bruijn 指标，对自由变量使用唯一标识符。
 
-For our purposes, a free variable is a variable in an expression that refers to a binder which has been "opened", and is no longer immediately available to us, so we replace the corresponding bound variable with a free variable that has some information about the binder we're leaving behind.
+就本文而言，自由变量是表达式中的一个变量，它指向某个已经被“打开”、因而不再立即可用的绑定子；因此，我们用一个自由变量替换相应的有界变量，并在这个自由变量上保存一些关于被留下的绑定子的资料。
 
-To illustrate, let's say we have some lambda expression `(fun (x : A) => <body>)` and we're doing type inference. Type inference has to traverse into the `<body>` part of the expression, which may contain a bound variable that refers to `x`. When we traverse into the body, we can either add `x` to some stateful context of binders and take the whole stateful context into the body with us, or we can temporarily replace all of the bound variables that refer to `x` with a free variable, allowing us to traverse into the body without having to carry any additional context.
+为了说明这一点，假设有某个 lambda 表达式 `(fun (x : A) => <body>)`，并且我们正在进行类型推断。类型推断必须遍历进入表达式的 `<body>` 部分，而其中可能包含一个指向 `x` 的有界变量。当我们进入函数体时，可以把 `x` 加入某个有状态的绑定子上下文，并把整个上下文带入函数体；也可以临时把所有指向 `x` 的有界变量替换为一个自由变量，从而无需携带额外上下文就能进入函数体。
 
-If we eventually come back to where we were before we opened the binder, abstraction allows us to replace all of the free variables that were once bound variables referring to `x` with new bound variables that again refer to `x`, with the correct deBruijn indices.
+如果我们最终回到打开绑定子之前的位置，抽象就允许我们把所有那些曾经是指向 `x` 的有界变量的自由变量，替换为新的有界变量，使它们再次指向 `x`，并具有正确的 de Bruijn 指标。
 
-## Implementing free variable abstraction
+## 实现自由变量抽象
 
-For deBruijn levels, the free variables keep track of a number that says "I am a free variable representing the nth bound variable *from the top of the telescope*". 
+对于 de Bruijn 层级，自由变量会记录一个数字，其含义是：“我是表示从望远镜顶部数第 n 个有界变量的自由变量”。
 
-This is the opposite of a deBruijn index, which is a number indicating "the nth bound variable from the bottom of the telescope".
+这与 de Bruijn 指标相反；de Bruijn 指标中的数字表示“从望远镜底部数第 n 个有界变量”。
 
-Top and bottom here refer to visualizing the expression's telescope as a tree:
+这里的顶部和底部，是把表达式的望远镜想象成一棵树时的说法：
 
 ```
       fun
@@ -28,11 +28,10 @@ Top and bottom here refer to visualizing the expression's telescope as a tree:
             e    bvar(0)
 ```
 
-For example, with a lambda `fun (a b c d e) => bvar(0)`, the bound variable refers to `e`, by referencing "the 0th from the bottom".
+例如，对于 lambda `fun (a b c d e) => bvar(0)`，这个有界变量通过引用“从底部数第 0 个”而指向 `e`。
 
-In the lambda expression `fun (a b c d e) => fvar(4)`, the free variable is a deBruijn level representing `e` again, but this time as "the 4th from the top of the telescope".
+在 lambda 表达式 `fun (a b c d e) => fvar(4)` 中，这个自由变量也是表示 `e` 的 de Bruijn 层级，但这一次它表示的是“从望远镜顶部数第 4 个”。
 
-Why the distinction? When we create a free variable during strong reduction, we know a couple of things: we know that the free variable we're about to sub in might get moved around by further reduction, we know how many open binder are *ABOVE* us (because we had to visit them to get here), and we know we might need to quote/abstract this expression to replace the binders, meaning we need to re-bind the free variable. However, in that moment, we do NOT know how many binders remain below us, so we cannot say how many variables from the bottom that variable might be when it's eventually abstracted/quoted.
+为什么要作这种区分？当我们在强规约过程中创建自由变量时，我们知道几件事：我们知道即将替换进去的自由变量可能会被后续规约移动；我们知道自己上方有多少个已打开的绑定子（因为我们必须访问它们才能到达这里）；我们也知道，为了重新替换绑定子，我们之后可能需要引用/抽象这个表达式，也就是说，需要重新绑定这个自由变量。然而，在那个时刻，我们并不知道我们下方还剩多少绑定子，因此不能说这个变量在最终被抽象/引用时会是从底部数第几个变量。
 
-For implementations using unique identifiers to tag free variables, this problem is solved by having the actual telescope that's being reconstructed during abstraction. As long as you have the expression and a list of the uniquely-tagged free variables, you can abstract, because the position of the free variables within the list indicates their binder position.
-
+对于使用唯一标识符标记自由变量的实现，这个问题通过在抽象过程中持有正在重建的实际望远镜来解决。只要有表达式和一份唯一标记自由变量的列表，就可以进行抽象，因为自由变量在列表中的位置表明了它们的绑定子位置。

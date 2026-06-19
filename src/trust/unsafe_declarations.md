@@ -1,15 +1,15 @@
-# Unsafe declarations
+# 不安全声明
 
-Lean's vernacular allows users to write declarations marked as `unsafe`, which are permitted to do things that are normally forbidden. For example, Lean permits the following definition:
+Lean 的交互式语言允许用户编写标记为 `unsafe` 的声明；这类声明可以做通常被禁止的事情。例如，Lean 允许如下定义：
 
 ```
   unsafe def y : Nat := y
 ```
 
-Unsafe declarations are not exported[^note1], do not need to be trusted, and (for the record) are not permitted in proofs, even in the vernacular. Permitting unsafe declarations in the vernacular is still beneficial for Lean users, because it gives users more freedom when writing code that is used to produce proofs but doesn't have to be a proof in and of itself.
+不安全声明不会被导出[^note1]，不需要被信任，并且（顺便一提）即使在交互式语言中，也不允许出现在证明中。允许交互式语言包含不安全声明，对 Lean 用户仍然是有益的，因为它让用户在编写用于产生证明、但本身不必是证明的代码时拥有更大的自由度。
 
-The aesop library provides us with an excellent real world example. [Aesop](https://github.com/leanprover-community/aesop) is an automation framework; it helps users generate proofs. At some point in development, the authors of aesop felt that the best way to express a certain part of their system was with a mutually defined inductive type, [seen here](https://github.com/leanprover-community/aesop/blob/69404390bdc1de946bf0a2e51b1a69f308e56d7a/Aesop/Tree/Data.lean#L375). It just so happens that this set of inductive type has an invalid occurrence of one of the types being declared within Lean's theory, and would not be permitted by Lean's kernel, so it needs to be marked `unsafe`.
+aesop 库给出了一个非常好的真实例子。[Aesop](https://github.com/leanprover-community/aesop) 是一个自动化框架；它帮助用户生成证明。在开发过程中的某个时刻，aesop 的作者认为，表达其系统某一部分的最佳方式是使用一个相互定义的归纳类型，[见此处](https://github.com/leanprover-community/aesop/blob/69404390bdc1de946bf0a2e51b1a69f308e56d7a/Aesop/Tree/Data.lean#L375)。恰好，这组归纳类型中有一个被声明类型在 Lean 理论中出现的位置是非法的，因此 Lean 内核不允许它；它必须被标记为 `unsafe`。
 
-Permitting this definition as an `unsafe` declaration is still a win-win. The Aesop developers were able to use Lean to write their library the way they wanted, in Lean, without having to call out to (and learn) a separate metaprogramming DSL, they didn't have to jump through hoops to satisfy the kernel, and users of aesop can still export and verify the proofs produced *by* aesop without having to verify aesop itself.
+把这个定义允许为一个 `unsafe` 声明仍然是双赢的。Aesop 的开发者能够用 Lean、按照他们希望的方式编写自己的库，而不必转向（并学习）另一套元编程 DSL；他们也不必为了满足内核而绕许多弯路。与此同时，aesop 的用户仍然可以导出并验证由 aesop 产生的证明，而无需验证 aesop 本身。
 
-[^note1]: There's technically nothing preventing an unsafe declaration from being put in an export file (especially since the exporter is not a trusted component), but checks run by the kernel will prevent unsafe declarations from being added to the environment if they are actually unsafe. A properly implemented type checker would throw an error if it received an export file declaring the aesop library code described above.
+[^note1]: 从技术上说，并没有什么阻止一个不安全声明被放入导出文件（尤其是因为导出器不是可信组件）。不过，如果这些不安全声明确实是不安全的，内核运行的检查会阻止它们被加入环境。一个正确实现的类型检查器在收到声明上文所述 aesop 库代码的导出文件时，应当抛出错误。

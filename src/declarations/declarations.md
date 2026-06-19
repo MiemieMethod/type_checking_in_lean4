@@ -1,6 +1,6 @@
-# Declarations
+# 声明
 
-Declarations are the big ticket items, and are the last domain elements we need to define.
+声明是最重要的对象，也是我们还需要定义的最后一类领域元素。
 
 
 ```
@@ -17,11 +17,10 @@ declar ::=
       is_recursive: Bool
       num_params: Nat
       num_indices: Nat
-      -- The name of this type, and any others in a mutual block
+      -- 此类型以及同一 mutual 块中任何其他类型的名称
       allIndNames: Name+
-      -- The names of the constructors for *this* type only, 
-      -- not including the constructors for mutuals that may 
-      -- be in this block.
+      -- 仅属于“此”类型的构造子名称，
+      -- 不包括同一块中 mutual 类型的构造子。
       constructorNames: Name*
       
   | Constructor 
@@ -43,31 +42,31 @@ RecRule ::= (constructor name : Name), (number of constructor args : Nat), (val 
 ```
 
 
-## Checking a declaration
+## 检查声明
 
 
-For all declarations, the following preliminary checks are performed before any additional procedures specific to certain kinds of declaration:
+对于所有声明，在执行任何针对特定声明种类的额外过程之前，都会先进行下列初步检查：
 
-+ The universe parameters in the declaration's `declarationInfo` must not have duplicates. For example, a declaration `def Foo.{u, v, u} ...` would be prohibited.
++ 声明的 `declarationInfo` 中的宇宙参数不得有重复。例如，声明 `def Foo.{u, v, u} ...` 会被禁止。
 
-+ The declaration's type must not have free variables; all variables in a "finished" declaration must correspond to a binder.
++ 声明的类型不得含有自由变量；“完成”的声明中的所有变量都必须对应于某个绑定子。
 
-+ The declaration's type must be a type (`infer declarationInfo.type` must produce a `Sort`). In Lean, a declaration `def Foo : Nat.succ := ..` is not permitted; `Nat.succ` is a value, not a type.
++ 声明的类型必须是一个类型（`infer declarationInfo.type` 必须产生一个 `Sort`）。在 Lean 中，不允许声明 `def Foo : Nat.succ := ..`；`Nat.succ` 是值，不是类型。
 
-### Axiom
+### 公理
 
-The only checks done against axioms are those done for all declarations which ensure the `declarationInfo` passes muster. If an axiom has a valid set of universe parameters and a valid type with no free variables, it is admitted to the environment.
+对公理所做的检查，只有适用于所有声明的那些检查，即确保 `declarationInfo` 合格。如果一个公理具有有效的一组宇宙参数，并且具有一个没有自由变量的有效类型，它就会被接纳进环境。
 
 ### Quot
 
-The `Quot` declarations are `Quot`, `Quot.mk`, `Quot.ind`, and `Quot.lift`. These declarations have prescribed types which are known to be sound within Lean's theory, so the environment's quotient declarations must match those types exactly. These types are hard-coded into kernel implementations since they are not prohibitively complex.
+`Quot` 声明包括 `Quot`、`Quot.mk`、`Quot.ind` 和 `Quot.lift`。这些声明具有规定好的类型，并且这些类型在 Lean 理论中已知是可靠的；因此环境中的商类型声明必须与这些类型完全匹配。由于这些类型并不复杂到不可接受，内核实现通常会将它们硬编码。
 
-### Definition, theorem, opaque
+### 定义、定理、不透明声明
 
-Definition, theorem, and opaque are interesting in that they both a type and a value. Checking these declarations involves inferring a type for the declaration's value, then asserting that the inferred type is definitionally equal to the ascribed type in the `declarationInfo`.
+定义、定理和不透明声明的有趣之处在于，它们同时具有类型和值。检查这些声明时，要先对声明的值推断出一个类型，然后断言该推断类型与 `declarationInfo` 中标注的类型定义相等。
 
-In the case of a theorem, the `declarationInfo`'s type is what the user claims the type is, and therefore what the user is claiming to prove, while the value is what the user has offered as a proof of that type. Inferring the type of the received value amounts to checking what the proof is actually a proof of, and the definitional equality assertion ensures that the thing the value proves is actually what the user intended to prove.
+在定理的情形中，`declarationInfo` 中的类型是用户声称的类型，因此也是用户声称要证明的命题；而值则是用户为该类型提供的证明。对收到的值推断类型，相当于检查该证明实际上证明了什么；定义相等断言则确保该值所证明的东西，确实是用户打算证明的东西。
 
-#### Reducibility hints
+#### 可规约性提示
 
-Reducibility hints contain information about how a declaration should be unfolded. An `abbreviation` will generally always be unfolded, `opaque` will not be unfolded, and `regular N` might be unfolded depending on the value of `N`. The `regular` reducibility hints correspond to a definition's "height", which refers to the number of declarations that definition uses to define itself. A definition `x` with a value that refers to definition `y` will have a height value greater than `y`.
+可规约性提示包含关于某个声明应如何展开的信息。`abbreviation` 通常总是会被展开，`opaque` 不会被展开，而 `regular N` 可能会根据 `N` 的值被展开。`regular` 可规约性提示对应于定义的“高度”，也就是该定义用来定义自身所使用的声明数量。若定义 `x` 的值引用了定义 `y`，则 `x` 的高度值会大于 `y`。

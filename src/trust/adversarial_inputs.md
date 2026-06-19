@@ -1,14 +1,13 @@
-# Adversarial inputs
+# 对抗性输入
 
-A topic that often accompanies the more general trust question is Lean's robustness against adversarial inputs.
+常与一般信任问题相伴出现的另一个主题，是 Lean 面对对抗性输入时的健壮性。
 
-A correct type checker will restrict the input it receives to the rules of Lean's type system under whatever axioms the operator allows. If the operator restricts the permitted axioms to the three "official" ones (`propext`, `Quot.sound`, `Classical.choice`), an input file should not be able to offer a proof of the prelude's `False` which is accepted by the type checker under any circumstances.
+正确的类型检查器会按照 Lean 类型系统的规则，并在操作者允许的公理范围内，约束它所接收的输入。若操作者把允许的公理限制为三个“官方”公理（`propext`、`Quot.sound`、`Classical.choice`），那么在任何情况下，输入文件都不应当能够给出一个被类型检查器接受的、关于 prelude 中 `False` 的证明。
 
-However, a minimal type checker will not actively protect against inputs which provide Lean declarations that are logically sound, but are designed to fool a human operator. For example, redefining deep dependencies an adversary knows will not be examined by a referee, or introducing unicode lookalikes to produce a pretty printer output that conceals modification of key definitions.
+然而，一个极小类型检查器不会主动防御那些逻辑上可靠、却被设计来误导人类操作者的 Lean 声明。例如，对手可能重定义他知道审稿人不会检查的深层依赖；或者引入 Unicode 近形字符，使漂亮打印器的输出掩盖关键定义被修改的事实。
 
-The idea that "a user might think a theorem has been formally proved, while in fact he or she
-is misled about what it is that the system has actually done" is addressed by the idea of Pollack consistency and is explored in this publication[^pollack] by Freek Wiedijk. 
+“用户可能以为某个定理已经被形式化证明，而事实上他或她误解了系统实际做了什么”这一想法，由 Pollack 一致性问题所刻画，并在 Freek Wiedijk 的这篇论文[^pollack]中得到讨论。
 
-Note that there is nothing in principle preventing developers from writing software or extending a type checker to provide protection against such attacks, it's just not captured by the minimal functionality required by the kernel. However, the extent to which Lean's users have embraced its powerful custom syntax and macro systems may pose some challenges for those interested in improving the story here. Readers should consider this somewhat of an [open issue for future work](../future_work.md#improving-pollack-consistency)
+请注意，原则上没有任何东西阻止开发者编写软件或扩展类型检查器来防御这类攻击；只是这种保护并不包含在内核所需的最小功能中。不过，Lean 用户对其强大的自定义语法和宏系统的广泛采用，可能会给有意改善这一问题的人带来一些挑战。读者可以把这看作一个[有待未来工作解决的开放问题](../future_work.md#改进-pollack-一致性)。
 
-[^pollack]: Freek Wiedijk. Pollack-inconsistency. Electronic Notes in Theoretical Computer Science, 285:85–100, 2012
+[^pollack]: Freek Wiedijk. Pollack-inconsistency. Electronic Notes in Theoretical Computer Science, 285:85-100, 2012

@@ -1,11 +1,18 @@
-Type Checking in Lean 4
------------------------
+Lean 4 中的类型检查
+------------------
 
-This is a book about Lean 4's kernel and implementing external type checkers; it's built with mdBook.
+这是 Christopher A. Bailey 所著 _Type Checking in Lean 4_ 的中文翻译，内容介绍 Lean 4 的内核以及如何实现外部类型检查器。
 
-A hosted copy can be found at https://ammkrn.github.io/type_checking_in_lean4/
+本书使用 mdBook 构建。若要在本地构建并预览，请先[安装 mdBook](https://rust-lang.github.io/mdBook/guide/installation.html)，然后运行：
 
-Users can build and view the book locally in their browser by [installing mdbook](https://rust-lang.github.io/mdBook/guide/installation.html) and running:
 ```bash
-mdbook watch --open  # opens the output in `out/` in your default browser
+mdbook watch --open
 ```
+
+若要只生成静态 HTML，请运行：
+
+```bash
+mdbook build
+```
+
+主分支根目录下的 `type_checking_in_lean4_zh.pdf` 是由 mdBook 生成的整书 PDF。

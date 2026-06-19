@@ -1,19 +1,17 @@
-# Names
+# 名称
 
-The first of the kernel's primitive types is `Name`, which is sort of what it sounds like; it provides kernel items with a way of addressing things.
+内核的第一个原始类型是 `Name`，大体上正如其名；它为内核项提供一种寻址事物的方式。
 
 ```
 Name ::= anonymous | str Name String | num Name Nat
 ```
 
-Elements of the `Name` type are displayed as dot-separated names, which users of Lean are probably familiar with. For example, `num (str (anonymous) "foo") 7` is displayed as `foo.7`. 
+`Name` 类型的元素会显示为以点分隔的名称，Lean 用户大概对此很熟悉。例如，`num (str (anonymous) "foo") 7` 会显示为 `foo.7`。
 
-# Implementation notes
+# 实现说明
 
-The implementation of names assumes UTF-8 strings, with characters as unicode scalars (these assumptions about the implementing language's string type are also important for the string literal kernel extension). 
+名称的实现假定字符串为 UTF-8，字符为 Unicode 标量值（关于实现语言字符串类型的这些假设，对于字符串字面量内核扩展也很重要）。
 
-Some information on the lexical structure of names can be found [here](https://github.com/leanprover/lean4/blob/504b6dc93f46785ccddb8c5ff4a8df5be513d887/doc/lexical_structure.md?plain=1#L40)
+关于名称词法结构的一些信息见[此处](https://github.com/leanprover/lean4/blob/504b6dc93f46785ccddb8c5ff4a8df5be513d887/doc/lexical_structure.md?plain=1#L40)。
 
-The exporter does not explicitly output the anonymous name, and expects it to be the 0th element of the imported names.
-
-
+导出器不会显式输出匿名名称，而是期望它是导入名称中的第 0 个元素。

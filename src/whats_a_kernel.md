@@ -1,33 +1,33 @@
-# What is the kernel?
+# 什么是内核？
 
-The kernel is an implementation of Lean's logic in software; a computer program with the minimum amount of machinery required to construct elements of Lean's logical language and check those elements for correctness. The major components are:
+内核是在软件中对 Lean 逻辑的实现：它是一个计算机程序，包含构造 Lean 逻辑语言中的对象并检查这些对象是否正确所需的最小机制。其主要组成部分如下：
 
-+ A sort of names used for addressing.
++ 用于寻址的一类名称。
 
-+ A sort of universe levels.
++ 一类宇宙层级。
 
-+ A sort of expressions (lambdas, variables, etc.)
++ 一类表达式（lambda、变量等）。
 
-+ A sort of declarations (axioms, definitions, theorems, inductive types, etc.)
++ 一类声明（公理、定义、定理、归纳类型等）。
 
-+ Environments, which are maps of names to declarations.
++ 环境，即从名称到声明的映射。
 
-+ Functionality for manipulating expressions. For example bound variable substitution and substitution of universe parameters.
++ 操作表达式的功能。例如，有界变量替换以及宇宙参数替换。
 
-+ Core operations used in type checking, including type inference, reduction, and definitional equality checking.
++ 类型检查所用的核心操作，包括类型推断、规约和定义相等检查。
 
-+ Functionality for manipulating and checking inductive type declarations. For example, generating a type's recursors (elimination rules), and checking whether a type's constructors agree with the type's specification.
++ 操作并检查归纳类型声明的功能。例如，生成某个类型的递归器（消去规则），并检查该类型的构造子是否符合类型的规格说明。
 
-+ Optional kernel extensions which permit the operations above to be performed on nat and string literals.
++ 可选的内核扩展，使上述操作能够作用于自然数和字符串字面量。
 
-The purpose of isolating a small kernel and requiring Lean definitions to be translated to a minimal kernel language is to increase the trustworthiness of the proof system. Lean's design allows users to interact with a full-featured proof assistant which offers nice things like robust metaprogramming, rich editor support, and extensible syntax, while also permitting extraction of constructed proof terms into a form that can be verified without having to trust the correctness of the code that implements the higher level features that makes Lean (the proof assistant) productive and pleasant to use.
+将一个小内核隔离出来，并要求 Lean 定义被翻译为极小的内核语言，其目的在于提高证明系统的可信度。Lean 的设计允许用户同一个功能完备的证明助手交互；这个证明助手提供了健壮的元编程、丰富的编辑器支持和可扩展语法等便利功能。同时，它也允许将构造出的证明项抽取为一种形式，使其可以在不信任实现这些高层功能的代码是否正确的前提下得到验证，而这些高层功能正是使 Lean（作为证明助手）高效且宜用的原因。
 
-In section 1.2.3 of the [_Certified Programming with Dependent Types_](http://adam.chlipala.net/cpdt/), Adam Chlipala defines what is sometimes referred to as the de Bruijn criterion, or de Bruijn principle.
+在 [_Certified Programming with Dependent Types_](http://adam.chlipala.net/cpdt/) 第 1.2.3 节中，Adam Chlipala 定义了通常称为 de Bruijn 准则或 de Bruijn 原则的思想。
 
-> Proof assistants satisfy the “de Bruijn criterion” when they produce proof terms in small kernel languages, even when they use complicated and extensible procedures to seek out proofs in the first place. These core languages have feature complexity on par with what you find in proposals for formal foundations for mathematics (e.g., ZF set theory). To believe a proof, we can ignore the possibility of bugs during search and just rely on a (relatively small) proof-checking kernel that we apply to the result of the search.
+> 当证明助手即便最初使用复杂且可扩展的过程来寻找证明，也仍然在小型内核语言中产生证明项时，它们满足“de Bruijn 准则”。这些核心语言在特性复杂度上与数学形式基础的提案（例如 ZF 集合论）相当。为了相信一个证明，我们可以忽略搜索过程中出现错误的可能性，而只依赖一个（相对较小的）证明检查内核，将它应用于搜索结果。
 
-Lean's kernel is small enough that developers can write their own implementation and independently check proofs in Lean by using an exporter[^1]. Lean's export format contains enough information about the exported declarations that users can optionally restrict their implementation to certain subsets of the full kernel. For example, users interested in the core functionality of inference, reduction, and definitional equality may opt out of implementing the functionality for checking inductive specifications.
+Lean 的内核足够小，使得开发者可以编写自己的实现，并借助导出器[^1]独立地检查 Lean 中的证明。Lean 的导出格式包含关于被导出声明的足够信息，因此用户也可以选择只实现完整内核的某些子集。例如，若用户只关心类型推断、规约和定义相等等核心功能，就可以选择不实现检查归纳规格说明的功能。
 
-In addition to the list of items above, external type checkers will also need a parser for [Lean's export format](./export_format.md), and a pretty printer, for input and output respectively. The parser and pretty printer are not part of the kernel, but they are important if one wants to have interesting interactions with the kernel.
+除了上面列出的项目之外，外部类型检查器还需要一个用于 [Lean 导出格式](./export_format.md)的解析器，以及一个用于输出的漂亮打印器。解析器和漂亮打印器并不是内核的一部分，但如果希望同内核进行有意义的交互，它们就是重要的组成部分。
 
-[^1]: Writing your own type checker is not an afternoon project, but it is well within the realm of what is achievable for citizen scientists.
+[^1]: 编写自己的类型检查器并不是一个下午就能完成的项目，但它完全属于公民科学家可以实现的范围。

@@ -1,18 +1,17 @@
-# The big picture
+# 总体图景
 
-To give the reader a road map, the entire procedure of checking an export file consists of these steps:
+为了给读者一份路线图，检查一个导出文件的整个过程由以下步骤组成：
 
-+ Parse an export file, yielding a collection of components for each primitive sort: names, levels, and expressions, as well as a collection of declarations.
++ 解析导出文件，得到每一种基本类别的组件集合：名称、层级和表达式，以及声明集合。
 
-+ The collection of parsed declarations represents an environment, which is a mapping from each declaration's name to the declaration itself; these are the actual targets of the type checking process.
++ 已解析的声明集合表示一个环境，即从每个声明的名称到声明本身的映射；这些声明正是类型检查过程的实际目标。
 
-+ For each declaration in the environment, the kernel requires that the declaration is not already declared in the environment, has no duplicate universe parameters, that the declaration's type is actually a type and not a value (that `infer declar.ty` returns an expression `Sort <n>`), and that the declaration's type has no free variables.
++ 对环境中的每个声明，内核要求：该声明尚未在环境中声明过；它没有重复的宇宙参数；它的类型确实是一个类型而不是一个值（即 `infer declar.ty` 返回某个表达式 `Sort <n>`）；并且该声明的类型没有自由变量。
 
-+ For definitions, theorems, and opaque declarations, assert that inferring the type of the definition's value yields an expression which is definitionally equal to the type the user assigned to the declaration. This is where the rubber meets the road in terms of asserting that proofs are correct, and for theorems, this is the step that corresponds to "the user says this is a proof of `P`, does the value actually constitute a valid proof of `P`".
++ 对于定义、定理和不透明声明，断言对定义值进行类型推断得到的表达式，与用户为声明指定的类型定义相等。就断言证明正确性而言，这一步是关键所在；对于定理，它对应于这样的问题：“用户声称这是 `P` 的一个证明，那么这个值实际上是否构成了 `P` 的有效证明？”
 
-+ For inductive declarations, their constructors, and recursors, check that they are properly formed and comply with the rules of Lean's type theory (more on this later). 
++ 对于归纳声明、其构造子和递归器，检查它们是否形式良好，并符合 Lean 类型论的规则（后文会进一步说明）。
 
-+ If the export file includes the primitive declarations for quotient types, ensure those declarations have the correct types, and that the `Eq` type exists, and is defined properly (since quotients rely on equality).
++ 如果导出文件包含商类型的原始声明，则确保这些声明具有正确的类型，并确保 `Eq` 类型存在且定义正确（因为商类型依赖等式）。
 
-+ Finally, pretty print any declarations requested by the user, so they can check that the declarations checked match the declarations they exported.
-
++ 最后，漂亮打印用户请求的任何声明，使用户能够检查被检查的声明是否与他们导出的声明相匹配。

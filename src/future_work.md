@@ -1,25 +1,25 @@
-# Future work and open issues
+# 未来工作与未决问题
 
-## File format
+## 文件格式
 
-There is an open rfc [here](https://github.com/leanprover/lean4export/issues/3) about moving the export file format to json, which would be a major version change.
+关于把导出文件格式迁移到 json，有一个开放的 RFC，见[此处](https://github.com/leanprover/lean4export/issues/3)；这将是一次主版本变更。
 
-## Ensuring Nat/String are defined properly.
+## 确保 Nat/String 被正确定义
 
-The Lean community has not yet settled on a particular solution for determining whether the declarations in an export file for `Nat`, `String`, and the operations covered by the relevant kernel extensions match those expected by extensions in a way that does not pull the exporter into the trusted code. 
+对于如何判定导出文件中 `Nat`、`String` 以及相关内核扩展覆盖的操作的声明，是否以不把导出器纳入可信代码的方式，与扩展所期望的内容相匹配，Lean 社区尚未确定一个特定方案。
 
-An approach similar to that taken for `Eq` and the `Quot` declarations (defining them by hand within the type checker, then asserting they're the same) is not feasible due to the complexity of the fully elaborated terms for the supported binary operations on `Nat`.
+类似 `Eq` 和 `Quot` 声明所采用的做法（在类型检查器内部手工定义它们，然后断言二者相同）并不可行，因为 `Nat` 上受支持二元操作的完全 elaborated 项过于复杂。
 
-## Improving Pollack consistency
+## 改进 Pollack 一致性
 
-Lean 4 offers very powerful facilities for defining custom syntax, macros, and pretty printer behaviors, and almost every aspect of Lean 4's internals is available to users. These elements of Lean's design were effective responses to real world feedback from the mathlib community during Lean 3's lifetime.
+Lean 4 提供了极其强大的设施，用于定义自定义语法、宏以及漂亮打印器行为；Lean 4 内部几乎所有方面也都对用户开放。Lean 设计中的这些元素，是对 Lean 3 时期 mathlib 社区真实反馈的有效回应。
 
-While these features were important factors in Lean's success as a tool for enabling large formalization efforts, they are also in tension with Lean4's Pollack consistency[^pollack], or lack thereof. Without replicating the macro and syntax extension capabilities in the pretty printer, type checkers cannot consistently read terms back to the user in a form that is recognizable. However, the idea of adding these features to a pretty printer is an unappealing expansion of the trusted code base. An alternative approach is to drop the pretty printer in favor of a trusted parser (ala metamath zero), but Lean's parser can be modified on the fly in userspace with custom syntax declarations.
+虽然这些特性是 Lean 作为支持大规模形式化工作的工具而获得成功的重要因素，但它们也与 Lean4 的 Pollack 一致性[^pollack]，或者说与其缺失，存在张力。如果不在漂亮打印器中复制宏和语法扩展能力，类型检查器就不能稳定地把项以用户可识别的形式读回给用户。然而，把这些特性加入漂亮打印器，会不太令人满意地扩大可信代码基。另一种做法是放弃漂亮打印器，转而使用可信解析器（类似 metamath zero），但 Lean 的解析器可以在用户空间中通过自定义语法声明即时修改。
 
-As Lean matures and adoption increases, there is likely to be a push for progress in the development of techniques and practices that allow users to take advantage of Lean's extensibility while sacrificing the least degree of Pollack consistency.
+随着 Lean 日趋成熟并得到更多采用，可能会出现一种推动力，促使人们发展技术和实践，使用户能够利用 Lean 的可扩展性，同时牺牲尽可能少的 Pollack 一致性。
 
-## Forward reasoning
+## 前向推理
 
-Existing type checkers implement a form of backward reasoning; an alternate strategy for type checking is to accept and check forward reasoning chains worked out by an external program, potentially allowing for an even simpler type checker.
+现有类型检查器实现的是某种形式的后向推理；另一种类型检查策略是接受并检查由外部程序给出的前向推理链，这可能允许类型检查器更加简单。
 
-[^pollack]: Freek Wiedijk. Pollack-inconsistency. Electronic Notes in Theoretical Computer Science, 285:85–100, 2012
+[^pollack]: Freek Wiedijk. Pollack-inconsistency. Electronic Notes in Theoretical Computer Science, 285:85-100, 2012

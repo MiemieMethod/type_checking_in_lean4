@@ -1,9 +1,9 @@
 [book]
-title = "Type Checking in Lean 4"
-authors = ["Christopher A. Bailey", "contributions from the Lean community"]
-language = "en"
+title = "Lean 4 中的类型检查"
+authors = ["Christopher A. Bailey", "Lean 社区贡献者"]
+language = "zh-CN"
 multilingual = false
 src = "src"
 
 [output.html]
-git-repository-url = "https://github.com/ammkrn/type_checking_in_lean4"
+git-repository-url = "https://github.com/MiemieMethod/type_checking_in_lean4"

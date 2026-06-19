@@ -1,19 +1,19 @@
-# Weak and strong reduction
+# 弱规约与强规约
 
-The implementation details of Lean's reduction strategies are discussed in [another chapter](../type_checking/reduction.md); this section is specifically about the difference between weak and strong reduction.
+Lean 规约策略的实现细节将在[另一章](../type_checking/reduction.md)讨论；本节专门说明弱规约与强规约之间的区别。
 
-## Weak reduction
+## 弱规约
 
-Weak reduction refers to reduction that stops at binders which do not have an argument applied to them. By binders, we mean lambda, pi, and let expressions (though in this context we can just focus on lambdas).
+弱规约指的是在遇到没有施加实参的绑定子时停止的规约。这里的绑定子指 lambda、pi 和 let 表达式（不过在当前语境中，我们只需关注 lambda）。
 
-For example, weak reduction can reduce `(fun (x y : Nat) => y + x) (0 : Nat)` to `(fun (y : Nat) => y + 0)`, but can do no further (weak) reduction.
+例如，弱规约可以把 `(fun (x y : Nat) => y + x) (0 : Nat)` 规约为 `(fun (y : Nat) => y + 0)`，但无法再继续作进一步的（弱）规约。
 
-When we say or 'weak head normal form reduction', or just 'reduction' without specifically identifying it as 'strong', we're talking about weak reduction. Strong reduction just happens as a byproduct of applying weak reduction after we've opened a binder somewhere else. 
+当我们说“弱头范式规约”，或者只说“规约”而没有特别说明它是“强”的时候，说的就是弱规约。强规约只是我们在其他地方打开某个绑定子后，再应用弱规约时产生的副产物。
 
-## Strong reduction
+## 强规约
 
-Strong reduction refers to reduction under open binders; when we run across a binder without an accompanying argument (like a lambda expression with no `app` node applying an argument), we can traverse into the body and potentially do further reduction by creating and substituting in a free variable. Strong reduction is needed for type inference and definitional equality checking. For type inference, we also need the ability to "re-close" open terms, replacing free variables with the correct bound variables after some reduction has been done in the body. This is not as simple as just replacing it with the same bound variable as before, because bound variables may have shifted, invalidating their old deBruijn index relative to the new rebuilt expression.
+强规约指的是在打开的绑定子之下进行规约：当我们遇到一个没有伴随实参的绑定子（例如一个没有 `app` 节点为其施加实参的 lambda 表达式）时，可以遍历进入其函数体，并通过创建并替换一个自由变量来继续规约。类型推断和定义相等检查都需要强规约。对于类型推断，我们还需要能够“重新闭合”打开的项：在函数体中完成若干规约后，用正确的有界变量替换自由变量。这并不是简单地换回原先同一个有界变量即可，因为有界变量可能已经发生位移，使旧的 de Bruijn 指标相对于新的重建表达式失效。
 
-As with weak reduction, strong reduction can still reduce `(fun (x y : Nat) => y + x) (0 : Nat)` to `(fun (y : Nat) => y + 0)`, and instead of getting stuck, it can continue by substituting `y` for a free variable, reducing the expression further to `((fVar id, y, Nat) + 0)`, and `(fvar id, y, Nat)`. 
+与弱规约一样，强规约也可以把 `(fun (x y : Nat) => y + x) (0 : Nat)` 规约为 `(fun (y : Nat) => y + 0)`；但它不会在这里卡住，而是可以继续用一个自由变量替换 `y`，把表达式进一步规约为 `((fVar id, y, Nat) + 0)`，再规约为 `(fvar id, y, Nat)`。
 
-As long as we keep the free variable information around _somewhere_, we can re-combine that information with the reduced `(fVar id, y, Nat)` to recreate `(fun (y : Nat) => bvar(0))`
+只要我们在某处保留自由变量信息，就可以把这些信息与规约后的 `(fVar id, y, Nat)` 重新组合起来，重建出 `(fun (y : Nat) => bvar(0))`。

@@ -1,29 +1,29 @@
-# Type Inference
+# 类型推断
 
-Type inference is a procedure for determining the type of a given expression, and is one of the core functionalities of Lean's kernel. Type inference is how we determine that `Nat.zero` is an element of the type `Nat`, or that `(fun (x : Char) => var(0))` is an element of the type `Char -> Char`.
+类型推断是确定给定表达式之类型的过程，也是 Lean 内核的核心功能之一。我们正是通过类型推断确定 `Nat.zero` 是类型 `Nat` 的一个元素，或者 `(fun (x : Char) => var(0))` 是类型 `Char -> Char` 的一个元素。
 
-This section begins by examining the simplest complete procedure for type inference, then the more performant but slightly more complex version of each procedure.
+本节先考察最简单的完整类型推断过程，再考察各过程性能更好、但略微更复杂的版本。
 
-We will also look at a number of additional correctness assertions that Lean's kernel makes during type inference.
+我们还会看到 Lean 内核在类型推断期间作出的若干额外正确性断言。
 
-## Bound variables
+## 有界变量
 
-If you're following Lean's implementation and using the locally nameless approach, you should not run into bound variables during type inference, because all open binders will be instantiated with the appropriate free variables.
+如果你遵循 Lean 的实现并使用局部无名（locally nameless）方法，那么在类型推断期间不应遇到有界变量，因为所有打开的绑定子都会用适当的自由变量实例化。
 
-When we come across a binder, we need to traverse into the body to determine the body's type. There are two main approaches one can take to preserve the information about the binder type; the one used by Lean proper is to create a free variable that retains the binder's type information, replace the corresponding bound variables with the free variable using instantiation, and then enter the body. This is nice, because we don't have to keep track of a separate piece of state for a typing context.
+当遇到绑定子时，我们需要遍历进入其函数体，以确定函数体的类型。为了保留关于绑定子类型的信息，有两种主要做法。Lean 本身使用的是：创建一个保留绑定子类型信息的自由变量，使用实例化把相应有界变量替换为这个自由变量，然后进入函数体。这样做很好，因为我们不必为类型上下文额外维护一份状态。
 
-For closure-based implementations, you will generally have a separate typing context that keeps track of the open binders; running into a bound variable then means that you will index into your typing context to get the type of that variable.
+对于基于闭包的实现，通常会有一个单独的类型上下文，用来记录打开的绑定子；此时遇到有界变量，就意味着要索引进入类型上下文，以取得该变量的类型。
 
-## Free variables
+## 自由变量
 
-When a free variable is created, it's given the type information from the binder it represents, so we can just take that type information as the result of inference.
+创建自由变量时，它会得到所表示绑定子的类型信息，因此我们可以直接把该类型信息作为推断结果。
 
 ```
 infer FVar id binder:
   binder.type
 ```
 
-## Function application
+## 函数应用
 
 ```
 infer App(f, arg):
@@ -34,11 +34,13 @@ infer App(f, arg):
   | _ => error
 ```
 
-The additional assertion needed here is that the type of `arg` matches the type of `binder`. For example, in the expression
+这里需要的额外断言是：`arg` 的类型与 `binder` 的类型相匹配。例如，在表达式
 
-`(fun (n : Nat) => 2 * n) 10`, we would need to assert that `defEq(Nat, infer(10))`.
+`(fun (n : Nat) => 2 * n) 10`
 
-While existing implementations prefer to perform this check inline, one could potentially store this equality assertion for processing elsewhere.
+中，我们需要断言 `defEq(Nat, infer(10))`。
+
+虽然现有实现倾向于在线执行这一检查，但原则上也可以把这个相等性断言存储起来，在别处处理。
 
 ## Lambda
 
@@ -50,7 +52,7 @@ infer Lambda(binder, body):
   Pi binder (abstract bodyType binderFVar)
 ```
 
-# Pi
+## Pi
 
 ```
 infer Pi binder body:
@@ -66,7 +68,7 @@ inferSortOf e:
 
 ## Sort
 
-The type of any `Sort n` is just `Sort (n+1)`.
+任意 `Sort n` 的类型就是 `Sort (n+1)`。
 
 ```
 infer Sort level:
@@ -75,7 +77,7 @@ infer Sort level:
 
 ## Const
 
-`const` expressions are used to refer to other declarations by name, and any other declaration referred to must have been previously declared and had its type checked. Since we therefore already know what the type of the referred to declaration is, we can just look it up in the environment. We do have to substitute in the current declaration's universe levels for the indexed definition's universe parameters however.
+`const` 表达式用于按名称引用其他声明；被引用的任何其他声明都必须已经事先声明并经过类型检查。因此，我们已经知道被引用声明的类型，只需在环境中查找它即可。不过，我们确实必须把当前声明的宇宙层级替换进被索引定义的宇宙参数中。
 
 ```
 infer Const name levels:
@@ -94,20 +96,20 @@ infer Let binder val body:
 
 ## Proj
 
-We're trying to infer the type of something like `Proj (projIdx := 0) (structure := Prod.mk A B (a : A) (b : B))`.
+我们试图推断类似 `Proj (projIdx := 0) (structure := Prod.mk A B (a : A) (b : B))` 这样的东西的类型。
 
-Start by inferring the type of the structure offered; from that we can get the structure name and look up the structure and constructor type in the environment.
+首先推断所给结构的类型；由此可以得到结构名称，并在环境中查找该结构及其构造子类型。
 
-Traverse the constructor type's telescope, substituting the parameters of `Prod.mk` into the telescope for the constructor type. If we looked up the constructor type `A -> B -> (a : A) -> (b : B) -> Prod A B`, substitute A and B, leaving the telescope `(a : A) -> (b : B) -> Prod A B`.
+遍历构造子类型的望远镜，把 `Prod.mk` 的参数替换进构造子类型的望远镜中。若查得构造子类型为 `A -> B -> (a : A) -> (b : B) -> Prod A B`，则替换 A 和 B，留下望远镜 `(a : A) -> (b : B) -> Prod A B`。
 
-The remaining parts of the constructor's telescope represent the structure's fields and have the type information in the binder, so we can just examine `telescope[projIdx]` and take the binder type. We do have to take care of one more thing; because later structure fields can depend on earlier structure fields, we need to instantiate the rest of the telescope (the body at each stage) with `proj thisFieldIdx s` where `s` is the original structure in the proj expression we're trying to infer.
+构造子望远镜剩余的部分表示结构字段，其类型信息位于绑定子中，因此可以检查 `telescope[projIdx]` 并取出绑定子类型。不过还需要处理一件事：由于靠后的结构字段可能依赖靠前的结构字段，我们需要用 `proj thisFieldIdx s` 来实例化望远镜的其余部分（每一阶段的函数体），其中 `s` 是我们正在推断的投影表达式中的原始结构。
 
 ```
 infer Projection(projIdx, structure):
   let structType := whnf (infer structure)
   let (const structTyName levels) tyArgs := structType.unfoldApps
   let InductiveInfo := env[structTyName]
-  -- This inductive should only have the one constructor since it's claiming to be a structure.
+  -- 这个归纳类型既然声称是结构，就应当只有一个构造子。
   let ConstructorInfo := env[InductiveInfo.constructorNames[0]]
 
   let mut constructorType := substLevels ConstructorInfo.type (newLevels := levels)
@@ -127,21 +129,20 @@ infer Projection(projIdx, structure):
     | _ => error 
 ```
 
-## Nat literals
+## 自然数字面量
 
-Nat literals infer as the constant referring to the declaration `Nat`.
+自然数字面量推断为指向声明 `Nat` 的常量。
 
 ```
 infer NatLiteral _:
   Const(Nat, [])
 ```
 
-## String literals
+## 字符串字面量
 
-String literals infer as the constant referring to the declaration `String`.
+字符串字面量推断为指向声明 `String` 的常量。
 
 ```
 infer StringLiteral _:
   Const(String, [])
 ```
-

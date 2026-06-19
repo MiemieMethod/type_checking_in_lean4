@@ -1,4 +1,3 @@
+# 内核概念
 
-# Kernel concepts
-
-This chapter begins with a high level road map, which everyone should read, then covers some ideas needed to understand the kernel's nuts and bolts, and is less focused on theory. The ideas in the later sections do not need to be completely understood up-front, so readers should feel free to skim them and come back as needed.
+本章先给出一份高层次路线图，所有读者都应阅读；随后介绍理解内核具体机制所需的一些概念，重点不在理论。后几节中的概念不必一开始就完全掌握，因此读者可以先略读，并在需要时再回头查阅。

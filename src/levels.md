@@ -1,22 +1,22 @@
-# Universe levels
+# 宇宙层级
 
-This section will describe universe levels from an implementation perspective, and will cover what readers need to know when it comes to type checking Lean declarations. More in-depth treatment of their role in Lean's type theory can be found in [TPIL4](https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects), or section 2 of [Mario Carneiro's thesis](https://github.com/digama0/lean-type-theory)
+本节将从实现角度描述宇宙层级，并说明读者在对 Lean 声明进行类型检查时需要知道的内容。关于宇宙层级在 Lean 类型论中的作用，更深入的讨论可见 [TPIL4](https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)，或 [Mario Carneiro 的博士论文](https://github.com/digama0/lean-type-theory)第 2 节。
 
-The syntax for universe levels is as follows:
+宇宙层级的语法如下：
 
 ```
 Level ::= Zero | Succ Level | Max Level Level | IMax Level Level | Param Name
 ```
 
-Properties of the `Level` type that readers should take note of are the existence of a partial order on universe levels, the presence of variables (the `Param` constructor), and the distinction between `Max` and `IMax`. 
+读者应当注意 `Level` 类型的几个性质：宇宙层级上存在一个偏序；其中存在变量（`Param` 构造子）；以及 `Max` 与 `IMax` 之间的区别。
 
-`Max` simply constructs a universe level that represents the larger of the left and right arguments. For example, `Max(1, 2)` simplifies to `2`, and `Max(u, u+1)` simplifies to `u+1`. The `IMax` constructor represents the larger of the left and right arguments, *unless* the right argument simplifies to `Zero`, in which case the entire `IMax` resolves to `0`.
+`Max` 只是构造一个表示左右两个参数中较大者的宇宙层级。例如，`Max(1, 2)` 化简为 `2`，而 `Max(u, u+1)` 化简为 `u+1`。`IMax` 构造子也表示左右两个参数中的较大者，*除非*右参数化简为 `Zero`；在这种情况下，整个 `IMax` 解析为 `0`。
 
-The important part about `IMax` is its interaction with the type inference procedure to ensure that, for example, `forall (x y : Sort 3), Nat` is inferred as `Sort 4`, but `forall (x y : Sort 3), True` is inferred as `Prop`.
+`IMax` 的重要之处在于它与类型推断过程的相互作用。例如，它确保 `forall (x y : Sort 3), Nat` 被推断为 `Sort 4`，而 `forall (x y : Sort 3), True` 被推断为 `Prop`。
 
-## Partial order on levels
+## 层级上的偏序
 
-Lean's `Level` type is equipped with a partial order, meaning there's a "less than or equals" test we can perform on pairs of levels. The rather nice implementation below comes from Gabriel Ebner's Lean 3 checker [trepplein](https://github.com/gebner/trepplein/tree/master). While there are quite a few cases that need to be covered, the only complex matches are those relying on `cases`, which checks whether `x ≤ y` by examining whether `x ≤ y` holds when a parameter `p` is substituted for `Zero`, and when `p` is substituted for `Succ p`.
+Lean 的 `Level` 类型带有一个偏序，也就是说，我们可以对一对层级执行“小于等于”测试。下面这个相当漂亮的实现来自 Gabriel Ebner 的 Lean 3 检查器 [trepplein](https://github.com/gebner/trepplein/tree/master)。虽然需要覆盖的情形不少，但唯一复杂的匹配是依赖 `cases` 的那些；`cases` 通过分别检查把参数 `p` 替换为 `Zero` 时，以及把 `p` 替换为 `Succ p` 时，`x ≤ y` 是否成立，来判断 `x ≤ y`。
 
 ```
   leq (x y : Level) (balance : Integer): bool :=
@@ -28,10 +28,10 @@ Lean's `Level` type is equipped with a partial order, meaning there's a "less th
     Succ(l1_), _ => leq l1_ l2 (balance - 1)
     _, Succ(l2_) => leq l1 l2_ (balance + 1)
 
-    -- descend left
+    -- 向左下降
     Max(a, b), _ => (leq a l2 balance) && (leq b l2 balance)
 
-    -- descend right
+    -- 向右下降
     (Param(_) | Zero), Max(a, b) => (leq l1 a balance) || (leq l1 b balance)
 
     -- imax
@@ -50,12 +50,12 @@ Lean's `Level` type is equipped with a partial order, meaning there's a "less th
     leq (simplify $ subst l1 p (Succ p)) (simplify $ subst l2 p (Succ p))
 ```
 
-## Equality for levels
+## 层级相等
 
-The `Level` type recognizes equality by antisymmetry, meaning two levels `l1` and `l2` are equal if `l1 ≤ l2` and `l2 ≤ l1`.
+`Level` 类型通过反对称性识别相等：两个层级 `l1` 和 `l2` 相等，当且仅当 `l1 ≤ l2` 且 `l2 ≤ l1`。
 
-# Implementation notes
+# 实现说明
 
-Be aware that the exporter does not export `Zero`, but it is assumed to be the 0th element of `Level`.
+注意，导出器不会导出 `Zero`；它被假定为 `Level` 的第 0 个元素。
 
-For what it's worth, the implementation of `Level` does not have a large impact on performance, so don't feel the need to aggressively optimize here.
+顺便说一句，`Level` 的实现对性能没有很大影响，因此不必在这里过度优化。
