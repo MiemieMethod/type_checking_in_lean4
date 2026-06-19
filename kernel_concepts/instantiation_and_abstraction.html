@@ -1,0 +1,253 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>实例化与抽象 - Lean 4 中的类型检查</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../title_page.html">Lean 4 中的类型检查</a></li><li class="chapter-item expanded affix "><a href="../foreword.html">前言</a></li><li class="chapter-item expanded "><a href="../whats_a_kernel.html"><strong aria-hidden="true">1.</strong> 什么是内核？</a></li><li class="chapter-item expanded "><a href="../trust/trust.html"><strong aria-hidden="true">2.</strong> 信任</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trust/unsafe_declarations.html"><strong aria-hidden="true">2.1.</strong> 不安全声明</a></li><li class="chapter-item expanded "><a href="../trust/adversarial_inputs.html"><strong aria-hidden="true">2.2.</strong> 对抗性输入</a></li></ol></li><li class="chapter-item expanded "><a href="../export_format.html"><strong aria-hidden="true">3.</strong> 导出格式</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/kernel_concepts.html"><strong aria-hidden="true">4.</strong> 内核概念</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../kernel_concepts/the_big_picture.html"><strong aria-hidden="true">4.1.</strong> 总体图景</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/clarifying_language.html"><strong aria-hidden="true">4.2.</strong> 术语说明</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/instantiation_and_abstraction.html" class="active"><strong aria-hidden="true">4.3.</strong> 实例化与抽象</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/weak_and_strong_reduction.html"><strong aria-hidden="true">4.4.</strong> 弱规约与强规约</a></li></ol></li><li class="chapter-item expanded "><a href="../names.html"><strong aria-hidden="true">5.</strong> 名称</a></li><li class="chapter-item expanded "><a href="../levels.html"><strong aria-hidden="true">6.</strong> 层级</a></li><li class="chapter-item expanded "><a href="../expressions/expressions.html"><strong aria-hidden="true">7.</strong> 表达式</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../expressions/implementing_expressions.html"><strong aria-hidden="true">7.1.</strong> 实现表达式的若干说明</a></li></ol></li><li class="chapter-item expanded "><a href="../declarations/declarations.html"><strong aria-hidden="true">8.</strong> 声明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../declarations/inductive.html"><strong aria-hidden="true">8.1.</strong> 归纳类型的秘密生活</a></li></ol></li><li class="chapter-item expanded "><a href="../type_checking/type_inference.html"><strong aria-hidden="true">9.</strong> 类型推断</a></li><li class="chapter-item expanded "><a href="../type_checking/definitional_equality.html"><strong aria-hidden="true">10.</strong> 定义相等</a></li><li class="chapter-item expanded "><a href="../type_checking/reduction.html"><strong aria-hidden="true">11.</strong> 规约</a></li><li class="chapter-item expanded "><a href="../future_work.html"><strong aria-hidden="true">12.</strong> 未决问题与未来工作</a></li><li class="chapter-item expanded "><a href="../further_reading.html"><strong aria-hidden="true">13.</strong> 延伸阅读</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Lean 4 中的类型检查</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/MiemieMethod/type_checking_in_lean4" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="实例化与抽象"><a class="header" href="#实例化与抽象">实例化与抽象</a></h1>
+<p>实例化指的是用适当的实参替换有界变量。抽象指的是在重建绑定子时，用适当的有界变量替换自由变量。Lean 的内核对有界变量使用 de Bruijn 指标，对自由变量使用唯一标识符。</p>
+<p>就本文而言，自由变量是表达式中的一个变量，它指向某个已经被“打开”、因而不再立即可用的绑定子；因此，我们用一个自由变量替换相应的有界变量，并在这个自由变量上保存一些关于被留下的绑定子的资料。</p>
+<p>为了说明这一点，假设有某个 lambda 表达式 <code>(fun (x : A) =&gt; &lt;body&gt;)</code>，并且我们正在进行类型推断。类型推断必须遍历进入表达式的 <code>&lt;body&gt;</code> 部分，而其中可能包含一个指向 <code>x</code> 的有界变量。当我们进入函数体时，可以把 <code>x</code> 加入某个有状态的绑定子上下文，并把整个上下文带入函数体；也可以临时把所有指向 <code>x</code> 的有界变量替换为一个自由变量，从而无需携带额外上下文就能进入函数体。</p>
+<p>如果我们最终回到打开绑定子之前的位置，抽象就允许我们把所有那些曾经是指向 <code>x</code> 的有界变量的自由变量，替换为新的有界变量，使它们再次指向 <code>x</code>，并具有正确的 de Bruijn 指标。</p>
+<h2 id="实现自由变量抽象"><a class="header" href="#实现自由变量抽象">实现自由变量抽象</a></h2>
+<p>对于 de Bruijn 层级，自由变量会记录一个数字，其含义是：“我是表示从望远镜顶部数第 n 个有界变量的自由变量”。</p>
+<p>这与 de Bruijn 指标相反；de Bruijn 指标中的数字表示“从望远镜底部数第 n 个有界变量”。</p>
+<p>这里的顶部和底部，是把表达式的望远镜想象成一棵树时的说法：</p>
+<pre><code>      fun
+      /  \
+    a    fun
+        /   \
+      b      ...
+              \
+              fun
+             /   \
+            e    bvar(0)
+</code></pre>
+<p>例如，对于 lambda <code>fun (a b c d e) =&gt; bvar(0)</code>，这个有界变量通过引用“从底部数第 0 个”而指向 <code>e</code>。</p>
+<p>在 lambda 表达式 <code>fun (a b c d e) =&gt; fvar(4)</code> 中，这个自由变量也是表示 <code>e</code> 的 de Bruijn 层级，但这一次它表示的是“从望远镜顶部数第 4 个”。</p>
+<p>为什么要作这种区分？当我们在强规约过程中创建自由变量时，我们知道几件事：我们知道即将替换进去的自由变量可能会被后续规约移动；我们知道自己上方有多少个已打开的绑定子（因为我们必须访问它们才能到达这里）；我们也知道，为了重新替换绑定子，我们之后可能需要引用/抽象这个表达式，也就是说，需要重新绑定这个自由变量。然而，在那个时刻，我们并不知道我们下方还剩多少绑定子，因此不能说这个变量在最终被抽象/引用时会是从底部数第几个变量。</p>
+<p>对于使用唯一标识符标记自由变量的实现，这个问题通过在抽象过程中持有正在重建的实际望远镜来解决。只要有表达式和一份唯一标记自由变量的列表，就可以进行抽象，因为自由变量在列表中的位置表明了它们的绑定子位置。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../kernel_concepts/clarifying_language.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../kernel_concepts/weak_and_strong_reduction.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../kernel_concepts/clarifying_language.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../kernel_concepts/weak_and_strong_reduction.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

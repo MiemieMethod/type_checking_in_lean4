@@ -1,0 +1,364 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>规约 - Lean 4 中的类型检查</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../title_page.html">Lean 4 中的类型检查</a></li><li class="chapter-item expanded affix "><a href="../foreword.html">前言</a></li><li class="chapter-item expanded "><a href="../whats_a_kernel.html"><strong aria-hidden="true">1.</strong> 什么是内核？</a></li><li class="chapter-item expanded "><a href="../trust/trust.html"><strong aria-hidden="true">2.</strong> 信任</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../trust/unsafe_declarations.html"><strong aria-hidden="true">2.1.</strong> 不安全声明</a></li><li class="chapter-item expanded "><a href="../trust/adversarial_inputs.html"><strong aria-hidden="true">2.2.</strong> 对抗性输入</a></li></ol></li><li class="chapter-item expanded "><a href="../export_format.html"><strong aria-hidden="true">3.</strong> 导出格式</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/kernel_concepts.html"><strong aria-hidden="true">4.</strong> 内核概念</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../kernel_concepts/the_big_picture.html"><strong aria-hidden="true">4.1.</strong> 总体图景</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/clarifying_language.html"><strong aria-hidden="true">4.2.</strong> 术语说明</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/instantiation_and_abstraction.html"><strong aria-hidden="true">4.3.</strong> 实例化与抽象</a></li><li class="chapter-item expanded "><a href="../kernel_concepts/weak_and_strong_reduction.html"><strong aria-hidden="true">4.4.</strong> 弱规约与强规约</a></li></ol></li><li class="chapter-item expanded "><a href="../names.html"><strong aria-hidden="true">5.</strong> 名称</a></li><li class="chapter-item expanded "><a href="../levels.html"><strong aria-hidden="true">6.</strong> 层级</a></li><li class="chapter-item expanded "><a href="../expressions/expressions.html"><strong aria-hidden="true">7.</strong> 表达式</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../expressions/implementing_expressions.html"><strong aria-hidden="true">7.1.</strong> 实现表达式的若干说明</a></li></ol></li><li class="chapter-item expanded "><a href="../declarations/declarations.html"><strong aria-hidden="true">8.</strong> 声明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../declarations/inductive.html"><strong aria-hidden="true">8.1.</strong> 归纳类型的秘密生活</a></li></ol></li><li class="chapter-item expanded "><a href="../type_checking/type_inference.html"><strong aria-hidden="true">9.</strong> 类型推断</a></li><li class="chapter-item expanded "><a href="../type_checking/definitional_equality.html"><strong aria-hidden="true">10.</strong> 定义相等</a></li><li class="chapter-item expanded "><a href="../type_checking/reduction.html" class="active"><strong aria-hidden="true">11.</strong> 规约</a></li><li class="chapter-item expanded "><a href="../future_work.html"><strong aria-hidden="true">12.</strong> 未决问题与未来工作</a></li><li class="chapter-item expanded "><a href="../further_reading.html"><strong aria-hidden="true">13.</strong> 延伸阅读</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Lean 4 中的类型检查</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/MiemieMethod/type_checking_in_lean4" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="规约"><a class="header" href="#规约">规约</a></h1>
+<p>规约的目的，是把表达式推向其<a href="https://en.wikipedia.org/wiki/Normal_form_(abstract_rewriting)">范式</a>，从而判断表达式是否定义相等。例如，为了判断 <code>(fun x =&gt; x) Nat.zero</code> 与 <code>Nat.zero</code> 定义相等，我们需要执行 beta 规约；为了判断 <code>id List.nil</code> 与 <code>List.nil</code> 定义相等，我们需要执行 delta 规约。</p>
+<p>Lean 内核中的规约有两个性质，会引出一些在基础教材处理中有时未被讨论的问题。第一，在某些情况下，规约与推断是交错进行的。除其他事情外，这意味着规约可能需要在打开项上执行，尽管规约过程本身并不创建自由变量。第二，应用于多个实参的 <code>const</code> 表达式，在规约期间可能需要同这些实参一起考虑（如 iota 规约中那样），因此在规约开始时，需要一起展开一串应用。</p>
+<h2 id="beta-规约"><a class="header" href="#beta-规约">Beta 规约</a></h2>
+<p>Beta 规约处理函数应用的规约。具体而言，规约：</p>
+<pre><code>(fun x =&gt; x) a    ~~&gt;    a
+</code></pre>
+<p>Beta 规约的实现必须对表达式去脊（despine），以收集 <code>app</code> 表达式中的所有实参；检查这些实参所应用到的表达式是否是 lambda；然后在函数体中，把对应有界变量的所有出现替换为适当的实参：</p>
+<pre><code>betaReduce e:
+  betaReduceAux e.unfoldApps
+
+betaReduceAux f args:
+  match f, args with
+  | lambda _ body, arg :: rest =&gt; betaReduceAux (inst body arg) rest
+  | _, _ =&gt; foldApps f args
+</code></pre>
+<p>对于 beta 规约的实例化（替换）部分，一个重要的性能优化有时被称为“广义 beta 规约”。它会收集那些有对应 lambda 的实参，并一次性替换它们。这个优化意味着，对于 <code>n</code> 个连续的、施加了实参的 lambda 表达式，我们只需遍历表达式一次来替换相应实参，而不是遍历 <code>n</code> 次。</p>
+<pre><code>betaReduce e:
+  betaReduceAux e.unfoldApps []
+
+betaReduceAux f remArgs argsToApply:
+  match f, remArgs with
+  | lambda _ body, arg :: rest =&gt; betaReduceAux body rest (arg :: argsToApply)
+  | _, _ =&gt; foldApps (inst f argsToApply) remArgs
+</code></pre>
+<h2 id="zeta-规约规约-let-表达式"><a class="header" href="#zeta-规约规约-let-表达式">Zeta 规约（规约 <code>let</code> 表达式）</a></h2>
+<p>Zeta 规约是 <code>let</code> 表达式规约的一个较华丽名称。具体而言，规约</p>
+<pre><code>let (x : T) := y; x + 1    ~~&gt;    (y : T) + 1
+</code></pre>
+<p>实现可以简单到如下程度：</p>
+<pre><code>reduce Let _ val body:
+  instantiate body val
+</code></pre>
+<h2 id="delta-规约定义展开"><a class="header" href="#delta-规约定义展开">Delta 规约（定义展开）</a></h2>
+<p>Delta 规约指展开定义（以及定理）。Delta 规约会把一个 <code>const ..</code> 表达式替换为被引用声明的值，同时把该声明的泛型宇宙参数替换为当前上下文相关的宇宙参数。</p>
+<p>如果当前环境包含一个定义 <code>x</code>，它以宇宙参数 <code>u*</code> 和值 <code>v</code> 声明，那么可以对表达式 <code>Const(x, w*)</code> 作 delta 规约：先把它替换为 <code>val</code>，再把宇宙参数 <code>u*</code> 替换为 <code>w*</code> 中的那些层级。</p>
+<pre><code>deltaReduce Const name levels:
+  if environment[name] == (d : Declar) &amp;&amp; d.val == v then
+  substituteLevels (e := v) (ks := d.uparams) (vs := levels)
+</code></pre>
+<p>如果为了到达被 delta 规约的 <code>const</code> 表达式而不得不移除某些已施加实参，那么这些实参应当重新应用到规约后的定义上。</p>
+<h2 id="投影规约"><a class="header" href="#投影规约">投影规约</a></h2>
+<p><code>proj</code> 表达式有一个自然数指标，表示要投影的字段；还有另一个表达式，表示结构本身。构成该结构的实际表达式，应当是一串实参应用到某个引用构造子的 <code>const</code> 上。</p>
+<p>请记住，对于完全 elaborated 的项，传给构造子的实参会包含任何参数。因此，<code>Prod</code> 构造子的一个实例会形如 <code>Prod.mk A B (a : A) (b : B)</code>。</p>
+<p>表示被投影字段的自然数从 0 开始计数，其中 0 是构造子的第一个<em>非参数</em>实参，因为投影不能用于访问结构的参数。</p>
+<p>有了这一点就很清楚：一旦我们把构造子的实参去脊为 <code>(constructor, [arg0, .., argN])</code>，就可以简单地取位置 <code>i + num_params</code> 处的实参来规约投影，其中 <code>num_params</code> 正如其名，是该结构类型的参数数量。</p>
+<pre><code>reduce proj fieldIdx structure:
+  let (constructorApp, args) := unfoldApps (whnf structure)
+  let num_params := environment[constructorApp].num_params
+  args[fieldIdx + numParams]
+
+  -- 沿用 `Prod` 例子，constructorApp 会是 `Const(Prod.mk, [u, v])`
+  -- args 会是 `[A, B, a, b]`
+</code></pre>
+<h3 id="投影的特殊情形字符串字面量"><a class="header" href="#投影的特殊情形字符串字面量">投影的特殊情形：字符串字面量</a></h3>
+<p>字符串字面量的内核扩展在投影规约中引入了一个特殊情形，在 iota 规约中也引入了一个特殊情形。</p>
+<p>字符串字面量的投影规约：由于投影表达式的结构可能规约为字符串字面量（Lean 的 <code>String</code> 类型被定义为一个只有一个字段的结构，该字段是 <code>List Char</code>）。</p>
+<p>如果该结构规约为 <code>StringLit (s)</code>，我们就把它转换为 <code>String.mk (.. : List Char)</code>，然后像通常的投影规约一样继续。</p>
+<h2 id="nat-字面量规约"><a class="header" href="#nat-字面量规约">Nat 字面量规约</a></h2>
+<p>自然数字面量的内核扩展包括对 <code>Nat.succ</code> 的规约，以及加法、减法、乘法、幂、除法、取模、布尔相等和布尔小于等于这些二元操作的规约。</p>
+<p>若正在规约的表达式为 <code>Const(Nat.succ, []) n</code>，且 <code>n</code> 可以规约为自然数字面量 <code>n'</code>，则将其规约为 <code>NatLit(n'+1)</code>。</p>
+<p>若正在规约的表达式为 <code>Const(Nat.&lt;binop&gt;, []) x y</code>，且 <code>x</code> 和 <code>y</code> 可以规约为自然数字面量 <code>x'</code> 与 <code>y'</code>，则将适当 <code>&lt;binop&gt;</code> 的宿主语言版本应用于 <code>x'</code> 与 <code>y'</code>，并返回所得自然数字面量。</p>
+<p>示例：</p>
+<pre><code>Const(Nat.succ, []) NatLit(100) ~&gt; NatLit(100+1)
+
+Const(Nat.add, []) NatLit(2) NatLit(3) ~&gt; NatLit(2+3)
+
+Const(Nat.add, []) (Const Nat.succ [], NatLit(10)) NatLit(3) ~&gt; NatLit(11+3)
+</code></pre>
+<h2 id="iota-规约模式匹配"><a class="header" href="#iota-规约模式匹配">Iota 规约（模式匹配）</a></h2>
+<p>Iota 规约是指应用特定于某个归纳声明、并由该归纳声明派生出的规约策略。这里说的是对归纳声明递归器的应用（或者我们稍后会看到的 <code>Quot</code> 特殊情形）。</p>
+<p>每个递归器都有一组“递归器规则”，每个构造子对应一条递归器规则。与呈现为类型的递归器不同，这些递归器规则是值层级表达式，展示如何消去一个由构造子 <code>T.c</code> 创建的类型 <code>T</code> 的元素。例如，<code>Nat.rec</code> 有一条用于 <code>Nat.zero</code> 的递归器规则，还有一条用于 <code>Nat.succ</code> 的递归器规则。</p>
+<p>对于归纳声明 <code>T</code>，<code>T</code> 的递归器所要求的元素之一是一个实际的 <code>(t : T)</code>，也就是我们正在消去的东西。这个 <code>(t : T)</code> 实参称为“主前提”。Iota 规约通过拆开主前提，查看用哪个构造子创建了 <code>t</code>，再从环境中取出并应用相应的递归器规则，从而执行模式匹配。</p>
+<p>由于递归器的类型签名也要求所需的参数、动机和次前提，因此我们不需要为了在例如 <code>Nat.zero</code> 而非 <code>Nat.succ</code> 上执行规约而改变递归器的实参。</p>
+<p>在实践中，有时需要先做一些初始操作，以暴露创建主前提所用的构造子，因为它可能不是一个直接的构造子应用。例如，<code>NatLit(n)</code> 表达式需要被转换为 <code>Nat.zero</code>，或 <code>App Const(Nat.succ, []) ..</code>。对于结构，我们也可以执行结构 eta 展开，把元素 <code>(t : T)</code> 转换为 <code>T.mk t.1 .. t.N</code>，从而暴露 <code>mk</code> 构造子的应用，使 iota 规约得以继续（如果无法弄清主前提由哪个构造子创建，规约就失败）。</p>
+<h2 id="listrec-类型"><a class="header" href="#listrec-类型">List.rec 类型</a></h2>
+<pre><code>forall 
+  {α : Type.{u}} 
+  {motive : (List.{u} α) -&gt; Sort.{u_1}}, 
+  (motive (List.nil.{u} α)) -&gt; 
+  (forall (head : α) (tail : List.{u} α), (motive tail) -&gt; (motive (List.cons.{u} α head tail))) -&gt; (forall (t : List.{u} α), motive t)
+</code></pre>
+<h2 id="listnil-递归器规则"><a class="header" href="#listnil-递归器规则">List.nil 递归器规则</a></h2>
+<pre><code>fun 
+  (α : Type.{u}) 
+  (motive : (List.{u} α) -&gt; Sort.{u_1}) 
+  (nilCase : motive (List.nil.{u} α)) 
+  (consCase : forall (head : α) (tail : List.{u} α), (motive tail) -&gt; (motive (List.cons.{u} α head tail))) =&gt; 
+  nilCase
+</code></pre>
+<h2 id="listcons-递归器规则"><a class="header" href="#listcons-递归器规则">List.cons 递归器规则</a></h2>
+<pre><code>fun 
+  (α : Type.{u}) 
+  (motive : (List.{u} α) -&gt; Sort.{u_1}) 
+  (nilCase : motive (List.nil.{u} α)) 
+  (consCase : forall (head : α) (tail : List.{u} α), (motive tail) -&gt; (motive (List.cons.{u} α head tail))) 
+  (head : α) 
+  (tail : List.{u} α) =&gt; 
+  consCase head tail (List.rec.{u_1, u} α motive nilCase consCase tail)
+</code></pre>
+<h3 id="类-k-规约"><a class="header" href="#类-k-规约">类 k 规约</a></h3>
+<p>对于某些归纳类型，即所谓“子单例消去器”，只要我们知道主前提的类型，即使主前提的构造子没有直接暴露，也可以继续执行 iota 规约。例如，当主前提作为自由变量出现时，就可能出现这种情况。这称为类 k 规约；它之所以被允许，是因为子单例消去器的所有元素都是相同的。</p>
+<p>要成为子单例消去器，一个归纳声明必须是归纳命题，不能是相互归纳或嵌套归纳；它必须恰好有一个构造子，并且唯一构造子只能接受该类型的参数作为实参（它不能“隐藏”任何未完全由其类型签名捕获的信息）。</p>
+<p>例如，类型 <code>Eq Char 'x'</code> 的任一元素的值完全由其类型决定，因为该类型的所有元素都是相同的。</p>
+<p>如果 iota 规约发现一个主前提是子单例消去器，那么允许把该主前提替换为对该类型构造子的应用，因为这是该自由变量实际可能取到的唯一元素。例如，一个类型为 <code>Eq Char 'a'</code> 的自由变量形式主前提，可以被替换为显式构造的 <code>Eq.refl Char 'a'</code>。</p>
+<p>说到具体机制，如果我们忽略了查找并应用类 k 规约，那么作为子单例消去器的自由变量会无法识别相应的递归器规则，iota 规约会失败，而某些本应成功的转换将不再成功。</p>
+<h3 id="quot-规约quotind-与-quotlift"><a class="header" href="#quot-规约quotind-与-quotlift"><code>Quot</code> 规约；<code>Quot.ind</code> 与 <code>Quot.lift</code></a></h3>
+<p><code>Quot</code> 引入了两个需要由内核处理的特殊情形：一个用于 <code>Quot.ind</code>，一个用于 <code>Quot.lift</code>。</p>
+<p><code>Quot.ind</code> 与 <code>Quot.lift</code> 都处理把函数 <code>f</code> 应用于实参 <code>(a : α)</code> 的情形，其中 <code>a</code> 是某个 <code>Quot r</code> 的组成部分，而这个 <code>Quot r</code> 由 <code>Quot.mk r a</code> 形成。</p>
+<p>为了执行规约，我们需要取出作为 <code>f</code> 元素的那个实参，以及作为 <code>Quot</code> 的那个实参；在后者中可以找到 <code>(a : α)</code>。然后把函数 <code>f</code> 应用于 <code>a</code>。最后，重新应用那些属于某个外层表达式、而与 <code>Quot.ind</code> 或 <code>Quot.lift</code> 的调用无关的实参。</p>
+<p>由于这只是一个规约步骤，我们依赖别处完成的类型检查阶段来保证整个表达式类型良好。</p>
+<p>下面重现了 <code>Quot.ind</code> 和 <code>Quot.mk</code> 的类型签名，并把望远镜元素映射到我们应当在实参中找到的内容。带有 <code>*</code> 的元素是规约中我们关心的部分。</p>
+<pre><code>Quotient primitive Quot.ind.{u} : ∀ {α : Sort u} {r : α → α → Prop} 
+  {β : Quot r → Prop}, (∀ (a : α), β (Quot.mk r a)) → ∀ (q : Quot r), β q
+
+  0  |-&gt; {α : Sort u} 
+  1  |-&gt; {r : α → α → Prop} 
+  2  |-&gt; {β : Quot r → Prop}
+  3* |-&gt; (∀ (a : α), β (Quot.mk r a)) 
+  4* |-&gt; (q : Quot r)
+  ...
+</code></pre>
+<pre><code>Quotient primitive Quot.lift.{u, v} : {α : Sort u} →
+  {r : α → α → Prop} → {β : Sort v} → (f : α → β) → 
+  (∀ (a b : α), r a b → f a = f b) → Quot r → β
+
+  0  |-&gt; {α : Sort u}
+  1  |-&gt; {r : α → α → Prop} 
+  2  |-&gt; {β : Sort v} 
+  3* |-&gt; (f : α → β) 
+  4  |-&gt; (∀ (a b : α), r a b → f a = f b)
+  5* |-&gt; Quot r
+  ...
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../type_checking/definitional_equality.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../future_work.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../type_checking/definitional_equality.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../future_work.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
